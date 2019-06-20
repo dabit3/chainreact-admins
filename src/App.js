@@ -1,6 +1,6 @@
 import React, {useEffect, useReducer} from 'react';
 import './App.css';
-import { List, Button, Skeleton } from 'antd';
+import { List, Skeleton } from 'antd';
 
 import { API, graphqlOperation } from 'aws-amplify'
 import { withAuthenticator } from 'aws-amplify-react'
@@ -22,7 +22,12 @@ function reducer(state, action) {
         ...state, reports: action.reports, loading: false
       }
     case 'DELETE_COMMENT':
-        const reports = [...state.reports.filter(r => r.commentId !== action.commentId)]
+        const filteredReports = [...state.reports.filter(r => r.commentId !== action.commentId)]
+        return {
+          ...state, reports: filteredReports
+        }
+    case 'REMOVE_REPORTS':
+        const reports = state.reports.filter(r => r.id !== action.report.id)
         return {
           ...state, reports
         }
@@ -71,7 +76,6 @@ function App() {
   useEffect(() => {
     const subscription = API.graphql(graphqlOperation(onCreateReport)).subscribe({
       next: eventData => {
-        console.log('eventData: ', eventData)
         const report = eventData.value.data.onCreateReport
         dispatch({ type: 'ADD_REPORT', report  })
       }
@@ -82,11 +86,8 @@ function App() {
   useEffect(() => {
     const subscription = API.graphql(graphqlOperation(onDeleteReport)).subscribe({
       next: eventData => {
-        console.log('eventData :', eventData)
         const report = eventData.value.data.onDeleteReport
-        const reports = state.reports.filter(r => r.id !== report.id)
-        console.log('reports: ', reports)
-        dispatch({ type: 'SET_REPORTS', reports  })
+        dispatch({ type: 'REMOVE_REPORTS', report  })
       }
     })
     return () => subscription.unsubscribe()
@@ -95,7 +96,6 @@ function App() {
   async function fetchReports() {
     try {
       const reportData = await API.graphql(graphqlOperation(listReports))
-      console.log('reportData: ', reportData)
       dispatch({ type: 'SET_REPORTS' , reports: reportData.data.listReports.items })
     } catch (err) {
       console.log('error fetching data: ', err)

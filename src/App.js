@@ -11,14 +11,15 @@ import { deleteComment as DeleteComment, deleteReport } from './mutations'
 
 const initialState = {
   reports: [],
-  error: false
+  error: false,
+  loading: true
 }
 
 function reducer(state, action) {
   switch(action.type) {
     case 'SET_REPORTS':
       return {
-        ...state, reports: action.reports
+        ...state, reports: action.reports, loading: false
       }
     case 'DELETE_COMMENT':
         const reports = [...state.reports.filter(r => r.commentId !== action.commentId)]
@@ -106,7 +107,7 @@ function App() {
       <List.Item actions={[
       <a onClick={() => deleteComment(item.commentId, dispatch, state.reports)}>Delete Comment</a>,
       <a onClick={() => dismissReport(item.commentId, dispatch, state.reports)}>Dismiss Report</a>]}>
-        <Skeleton avatar title={false} active loading={false}>
+        <Skeleton avatar title={false} active loading={state.loading}>
           <List.Item.Meta
             style={{ textAlign: 'left' }}
             title={<p>{item.talkTitle}</p>}
@@ -123,7 +124,7 @@ function App() {
           style={{ padding: '0px 25px' }}
           renderItem={renderItem}
           className="demo-loadmore-list"
-          loading={false}
+          loading={state.loading}
           itemLayout="horizontal"
           dataSource={state.reports}
         />

@@ -16,3 +16,8 @@ export const deleteReport = `mutation deleteReport($id: ID!) {
   }
 }`
 
+export const createBannedId = `mutation createBannedId($id: ID!) {
+  createBannedId(isBanned: true id:$id) {
+    id
+  }
+}`

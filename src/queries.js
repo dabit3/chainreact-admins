@@ -5,6 +5,7 @@ export const listReports = `query listReports {
       comment
       talkTitle
       commentId
+      deviceId
     }
   }
 }`

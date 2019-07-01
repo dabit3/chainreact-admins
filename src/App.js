@@ -7,7 +7,7 @@ import { withAuthenticator } from 'aws-amplify-react'
 
 import { listReports } from './queries'
 import { onCreateReport, onDeleteReport } from './subscriptions'
-import { deleteComment as DeleteComment, deleteReport } from './mutations'
+import { deleteComment as DeleteComment, deleteReport, createBannedId } from './mutations'
 
 const initialState = {
   reports: [],
@@ -102,17 +102,28 @@ function App() {
     }
   }
 
+  async function blockDevice(id) {
+    try {
+      await API.graphql(graphqlOperation(createBannedId, { id }))
+      alert('Device successfully blocked')
+    } catch (err) {
+      console.log('error blocking device: ', err)
+    }
+  }
+
   function renderItem(item) {
     return (
       <List.Item actions={[
       <a onClick={() => deleteComment(item.commentId, dispatch, state.reports)}>Delete Comment</a>,
-      <a onClick={() => dismissReport(item.commentId, dispatch, state.reports)}>Dismiss Report</a>]}>
+      <a onClick={() => dismissReport(item.commentId, dispatch, state.reports)}>Dismiss Report</a>,
+      <a onClick={() => blockDevice(item.deviceId)}>Block Device</a>]}>
         <Skeleton avatar title={false} active loading={state.loading}>
           <List.Item.Meta
             style={{ textAlign: 'left' }}
             title={<p>{item.talkTitle}</p>}
             description={<h3>{item.comment}</h3>}
           />
+          <p>{item.deviceId}</p>
         </Skeleton>
       </List.Item>
     )

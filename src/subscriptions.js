@@ -4,6 +4,7 @@ export const onCreateReport = `subscription onCreateReport {
     talkTitle
     comment
     commentId
+    deviceId
   }
 }`
 
